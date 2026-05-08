@@ -1,0 +1,3 @@
+from app.repositories.property_repo import PropertyRepository
+from app.repositories.tenant_repo import TenantRepository
+from app.repositories.maintenance_repo import MaintenanceRepository
