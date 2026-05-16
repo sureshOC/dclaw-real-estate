@@ -8,12 +8,16 @@ class Settings(BaseSettings):
     debug: bool = True
 
     database_url: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/dclaw_crm"
-    
-    ollama_url: str = "http://localhost:11434"
-    ollama_model: str = "llama3.1"
-    openrouter_api_key: str = ""
-    openrouter_model: str = "meta-llama/llama-3.1-8b-instruct"
-    
+
+    anthropic_api_key: str = ""
+    anthropic_model: str = "claude-sonnet-4-6"
+
+    upload_dir: str = "/tmp/dclaw_uploads"
+    max_upload_bytes: int = 20 * 1024 * 1024  # 20 MB
+
+    late_fee_grace_days: int = 5
+    late_fee_flat: float = 50.0
+
     secret_key: str = "change-me-in-production"
     access_token_expire_minutes: int = 60
     

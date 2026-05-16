@@ -43,10 +43,17 @@ class Property(Base):
         SQLEnum(PropertyStatus), default=PropertyStatus.available
     )
     description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    ai_description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
 
     tenants: Mapped[list["Tenant"]] = relationship(
         "Tenant", back_populates="property", lazy="selectin"
     )
     maintenance_requests: Mapped[list["MaintenanceRequest"]] = relationship(
         "MaintenanceRequest", back_populates="property", lazy="selectin"
+    )
+    expenses: Mapped[list["Expense"]] = relationship(
+        "Expense", back_populates="property", lazy="selectin"
+    )
+    documents: Mapped[list["Document"]] = relationship(
+        "Document", back_populates="property", lazy="selectin"
     )

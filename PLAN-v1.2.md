@@ -41,7 +41,7 @@ Before implementing any v1.2 feature, verify:
 
 ### P0 — Must Have
 
-#### 1. Rent Roll Dashboard
+#### ✅ 1. Rent Roll Dashboard
 **Description:** Portfolio-level financial summary — the single most-requested report by landlords and property managers. Every professional PM tool gates on this. Belongs pattern + Stessa core.
 - **Backend:**
   - `GET /api/v1/reports/rent-roll` — returns per-property rows: address, tenant name, lease start/end, monthly rent, payment status (current month), YTD collected, YTD expected, variance
@@ -55,7 +55,7 @@ Before implementing any v1.2 feature, verify:
   - Export to CSV button (browser-side)
 - **Files:** `backend/app/models/rent_payment.py`, `backend/app/api/v1/reports.py`, `frontend/src/app/reports/rent-roll/page.tsx`
 
-#### 2. Rent Payment Tracker
+#### ✅ 2. Rent Payment Tracker
 **Description:** Mark rent as paid/partial/late per tenant per month. Track payment history timeline. Calculate and apply late fees. Core cash-flow visibility — #1 landlord pain point.
 - **Backend:**
   - `POST /api/v1/payments` — create payment record
@@ -70,7 +70,7 @@ Before implementing any v1.2 feature, verify:
   - Dashboard: "Rent Due This Month" card with count of pending/late
 - **Files:** `backend/app/api/v1/payments.py`, `frontend/src/app/tenants/[id]/page.tsx`
 
-#### 3. Lease Lifecycle Manager
+#### ✅ 3. Lease Lifecycle Manager
 **Description:** Track lease status with automated expiry alerts (30/60/90-day warnings). Flag leases expiring soon. Renewal workflow. Doorstead and Belong both built this as their second feature after listings. Prevents revenue leakage from overlooked renewals.
 - **Backend:**
   - `GET /api/v1/leases/expiring?days=30` — tenants whose `lease_end` is within N days
@@ -86,7 +86,7 @@ Before implementing any v1.2 feature, verify:
   - Lease history accordion on tenant detail page
 - **Files:** `backend/app/models/lease_event.py`, `backend/app/api/v1/leases.py`, `frontend/src/app/leases/page.tsx`
 
-#### 4. AI Tenant Screening Score
+#### ✅ 4. AI Tenant Screening Score
 **Description:** AI-powered tenant scoring on application intake. Income-to-rent ratio check, rental history flags, risk tier. Belong and Doorstead built proprietary scoring as their moat. YC prizes defensible data loops.
 - **Backend:**
   - `POST /api/v1/tenants/{id}/screen` — runs scoring logic, returns `score (0–100)`, `tier (low/medium/high risk)`, `flags[]`, `recommendation`
@@ -108,7 +108,7 @@ Before implementing any v1.2 feature, verify:
 
 ### P1 — Should Have
 
-#### 5. Financial Analytics — NOI & Cap Rate
+#### ✅ 5. Financial Analytics — NOI & Cap Rate
 **Description:** Per-property profit & loss: rental income vs. operating expenses, Net Operating Income (NOI), cap rate. Stessa's entire moat. Investors and banks require this for portfolio financing decisions.
 - **Backend:**
   - New `Expense` model: `id, property_id, category (mortgage/tax/insurance/maintenance/utilities/management/other), amount, date, description, recurring bool`
@@ -122,7 +122,7 @@ Before implementing any v1.2 feature, verify:
   - Add/Edit Expense dialog on property detail
 - **Files:** `backend/app/models/expense.py`, `backend/app/api/v1/financials.py`, `frontend/src/app/properties/[id]/financials/page.tsx`
 
-#### 6. Maintenance Vendor Management
+#### ✅ 6. Maintenance Vendor Management
 **Description:** Vendor directory with specialty tagging. Assign maintenance requests to vendors. Track resolution time and vendor rating. AI dispatch: auto-suggest best vendor by request category. Aldara (YC) built their entire product around this workflow.
 - **Backend:**
   - New `Vendor` model: `id, name, specialty (plumbing/electrical/hvac/general/landscaping/roofing), phone, email, rating float, notes`
@@ -139,7 +139,7 @@ Before implementing any v1.2 feature, verify:
   - Vendor detail: performance metrics (avg resolution time, open count, avg rating)
 - **Files:** `backend/app/models/vendor.py`, `backend/app/api/v1/vendors.py`, `frontend/src/app/vendors/page.tsx`
 
-#### 7. AI Property Description Generator
+#### ✅ 7. AI Property Description Generator
 **Description:** Generate compelling, SEO-friendly listing descriptions from property attributes using Claude API. Zillow and Opendoor both use AI copy. Agents spend 20+ minutes per listing on manual copy — this collapses that to seconds.
 - **Backend:**
   - `POST /api/v1/properties/{id}/generate-description` — reads property attributes, calls Claude API with structured prompt, returns generated description
@@ -152,7 +152,7 @@ Before implementing any v1.2 feature, verify:
   - "Accept" / "Regenerate" / "Edit" actions
 - **Files:** `backend/app/services/ai_description.py`, `backend/app/api/v1/properties.py`
 
-#### 8. Document Vault
+#### ✅ 8. Document Vault
 **Description:** Upload and store lease PDFs, inspection reports, insurance docs, addenda per property. Every professional PM tool has document storage. Critical for compliance and audit trails. Agora (YC W22) uses this as investor-facing document delivery.
 - **Backend:**
   - New `Document` model: `id, property_id, tenant_id (optional), name, file_key, file_size, mime_type, category (lease/inspection/insurance/photo/other), uploaded_at`
@@ -168,7 +168,7 @@ Before implementing any v1.2 feature, verify:
   - Download button per document
 - **Files:** `backend/app/models/document.py`, `backend/app/api/v1/documents.py`, `frontend/src/app/properties/[id]/documents/page.tsx`
 
-#### 9. Portfolio Occupancy Analytics
+#### ✅ 9. Portfolio Occupancy Analytics
 **Description:** Vacancy rate, average vacancy duration, cost-of-vacancy per property and portfolio-wide. YC metrics obsession: quantify every leakage point. Investors need this for acquisition decisions.
 - **Backend:**
   - `GET /api/v1/reports/occupancy?start=&end=` — returns per-property and portfolio: occupancy_rate %, avg_vacancy_days, vacancy_cost (days × daily_rent), current_status
@@ -181,7 +181,7 @@ Before implementing any v1.2 feature, verify:
   - Line chart: occupancy rate over time (recharts)
 - **Files:** `backend/app/api/v1/reports.py`, `frontend/src/app/reports/occupancy/page.tsx`
 
-#### 10. Tenant Communication Log
+#### ✅ 10. Tenant Communication Log
 **Description:** Timestamped log of calls, emails, notices, and notes per tenant. Reduces he-said/she-said disputes. Standard feature in Buildium, AppFolio, and every PM tool landlords compare you to.
 - **Backend:**
   - New `CommunicationLog` model: `id, tenant_id, property_id, type (call/email/notice/note/visit), direction (inbound/outbound), summary, created_by, created_at`
@@ -240,7 +240,7 @@ Before implementing any v1.2 feature, verify:
   - `/portal` route — separate layout (no admin sidebar), mobile-first design
   - Screens: My Lease, Pay Rent (record intent + confirmation), Submit Issue, My Documents
 
-#### 15. Market Comparables (Comps)
+#### ✅ 15. Market Comparables (Comps)
 **Description:** Show similar properties' current rent/sale price within the same city. Helps landlords set competitive rents. Future-ready: plug into real market data APIs (ATTOM, RentRange, Zillow API) when scaling.
 - **Backend:**
   - `GET /api/v1/properties/{id}/comps` — query Properties table for same city + property_type within ±20% sqft range, return sorted by price

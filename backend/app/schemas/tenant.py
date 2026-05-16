@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime
 from typing import Optional
 from uuid import UUID
 
@@ -14,6 +14,8 @@ class TenantBase(BaseModel):
     lease_start: Optional[date] = None
     lease_end: Optional[date] = None
     rent_amount: Optional[float] = None
+    income: Optional[float] = None
+    prior_eviction: bool = False
 
 
 class TenantCreate(TenantBase):
@@ -29,9 +31,15 @@ class TenantUpdate(BaseModel):
     lease_start: Optional[date] = None
     lease_end: Optional[date] = None
     rent_amount: Optional[float] = None
+    income: Optional[float] = None
+    prior_eviction: Optional[bool] = None
 
 
 class TenantRead(TenantBase):
     model_config = ConfigDict(from_attributes=True)
 
     id: UUID
+    screening_score: Optional[int] = None
+    screening_tier: Optional[str] = None
+    screening_notes: Optional[str] = None
+    screened_at: Optional[datetime] = None

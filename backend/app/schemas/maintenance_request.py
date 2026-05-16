@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Optional
 from uuid import UUID
 
@@ -32,3 +33,7 @@ class MaintenanceRequestRead(MaintenanceRequestBase):
     model_config = ConfigDict(from_attributes=True)
 
     id: UUID
+    vendor_id: Optional[UUID] = None
+    assigned_at: Optional[datetime] = None
+    resolved_at: Optional[datetime] = None
+    vendor_rating: Optional[float] = None

@@ -4,7 +4,25 @@
 # IDEs
 .vscode/
 .idea/
+.obsidian/
+*.canvas
 
 # Environment
 .env
 .env.local
+
+# AI tooling
+.claude/
+implement_promt.txt
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Node
+node_modules/
+.next/
+
+# Uploads / runtime artifacts
+/tmp/

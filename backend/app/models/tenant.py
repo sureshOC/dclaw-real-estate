@@ -1,8 +1,8 @@
 import uuid
-from datetime import date
+from datetime import date, datetime
 from typing import Optional
 
-from sqlalchemy import Date, Float, ForeignKey, String
+from sqlalchemy import Boolean, Date, DateTime, Float, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base
@@ -23,9 +23,29 @@ class Tenant(Base):
     lease_end: Mapped[Optional[date]] = mapped_column(Date, nullable=True)
     rent_amount: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
 
+    # Screening fields
+    income: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
+    prior_eviction: Mapped[bool] = mapped_column(Boolean, default=False)
+    screening_score: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
+    screening_tier: Mapped[Optional[str]] = mapped_column(String(20), nullable=True)
+    screening_notes: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    screened_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+
     property: Mapped[Optional["Property"]] = relationship(
         "Property", back_populates="tenants", lazy="selectin"
     )
     maintenance_requests: Mapped[list["MaintenanceRequest"]] = relationship(
         "MaintenanceRequest", back_populates="tenant", lazy="selectin"
+    )
+    rent_payments: Mapped[list["RentPayment"]] = relationship(
+        "RentPayment", back_populates="tenant", lazy="selectin"
+    )
+    lease_events: Mapped[list["LeaseEvent"]] = relationship(
+        "LeaseEvent", back_populates="tenant", lazy="selectin"
+    )
+    communications: Mapped[list["CommunicationLog"]] = relationship(
+        "CommunicationLog", back_populates="tenant", lazy="selectin"
+    )
+    documents: Mapped[list["Document"]] = relationship(
+        "Document", back_populates="tenant", lazy="selectin"
     )

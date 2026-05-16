@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Optional
 from uuid import UUID
 
@@ -6,9 +7,13 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
+from app.models.communication_log import CommunicationLog
 from app.models.tenant import Tenant
+from app.repositories.communication_log_repo import CommunicationLogRepository
 from app.repositories.tenant_repo import TenantRepository
+from app.schemas.communication_log import CommunicationLogCreate, CommunicationLogRead
 from app.schemas.tenant import TenantCreate, TenantRead, TenantUpdate
+from app.services.tenant_screening import run_screening
 
 router = APIRouter(prefix="/tenants", tags=["tenants"])
 
@@ -28,9 +33,7 @@ async def list_tenants(
 
 
 @router.post("/", response_model=TenantRead, status_code=201)
-async def create_tenant(
-    data: TenantCreate, db: AsyncSession = Depends(get_db)
-):
+async def create_tenant(data: TenantCreate, db: AsyncSession = Depends(get_db)):
     repo = TenantRepository(db)
     tenant = Tenant(**data.model_dump())
     return await repo.create(tenant)
@@ -70,3 +73,55 @@ async def delete_tenant(tenant_id: UUID, db: AsyncSession = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Tenant not found")
     await repo.delete(tenant)
     return None
+
+
+@router.post("/{tenant_id}/screen")
+async def screen_tenant(tenant_id: UUID, db: AsyncSession = Depends(get_db)):
+    repo = TenantRepository(db)
+    tenant = await repo.get_by_id(tenant_id)
+    if not tenant:
+        raise HTTPException(status_code=404, detail="Tenant not found")
+
+    result = await run_screening(tenant)
+
+    tenant.screening_score = result["score"]
+    tenant.screening_tier = result["tier"]
+    tenant.screening_notes = result["recommendation"]
+    tenant.screened_at = datetime.utcnow()
+    await db.commit()
+    await db.refresh(tenant)
+
+    return result
+
+
+@router.get("/{tenant_id}/communications", response_model=list[CommunicationLogRead])
+async def list_communications(tenant_id: UUID, db: AsyncSession = Depends(get_db)):
+    repo = TenantRepository(db)
+    tenant = await repo.get_by_id(tenant_id)
+    if not tenant:
+        raise HTTPException(status_code=404, detail="Tenant not found")
+    comm_repo = CommunicationLogRepository(db)
+    return await comm_repo.list_by_tenant(tenant_id)
+
+
+@router.post("/{tenant_id}/communications", response_model=CommunicationLogRead, status_code=201)
+async def create_communication(
+    tenant_id: UUID,
+    data: CommunicationLogCreate,
+    db: AsyncSession = Depends(get_db),
+):
+    repo = TenantRepository(db)
+    tenant = await repo.get_by_id(tenant_id)
+    if not tenant:
+        raise HTTPException(status_code=404, detail="Tenant not found")
+
+    comm_repo = CommunicationLogRepository(db)
+    log_data = data.model_dump()
+    if log_data.get("created_at") is None:
+        log_data["created_at"] = datetime.utcnow()
+    log = CommunicationLog(
+        tenant_id=tenant_id,
+        property_id=tenant.property_id,
+        **log_data,
+    )
+    return await comm_repo.create(log)

@@ -1,8 +1,9 @@
 import enum
 import uuid
+from datetime import datetime
 from typing import Optional
 
-from sqlalchemy import Enum as SQLEnum, ForeignKey, String, Text
+from sqlalchemy import DateTime, Enum as SQLEnum, Float, ForeignKey, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base
@@ -41,9 +42,20 @@ class MaintenanceRequest(Base):
         SQLEnum(MaintenanceStatus), default=MaintenanceStatus.open
     )
 
+    # Vendor assignment
+    vendor_id: Mapped[Optional[uuid.UUID]] = mapped_column(
+        ForeignKey("vendors.id", ondelete="SET NULL"), nullable=True
+    )
+    assigned_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+    resolved_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+    vendor_rating: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
+
     property: Mapped["Property"] = relationship(
         "Property", back_populates="maintenance_requests", lazy="selectin"
     )
     tenant: Mapped[Optional["Tenant"]] = relationship(
         "Tenant", back_populates="maintenance_requests", lazy="selectin"
+    )
+    vendor: Mapped[Optional["Vendor"]] = relationship(
+        "Vendor", back_populates="maintenance_requests", lazy="selectin"
     )

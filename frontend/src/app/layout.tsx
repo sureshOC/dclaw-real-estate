@@ -1,35 +1,30 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import NavBar from "@/components/NavBar";
 import "./globals.css";
 
 export const metadata: Metadata = {
   title: "DClaw Real Estate",
-  description: "DClaw vertical SaaS application",
+  description: "DClaw vertical SaaS — property management platform",
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-      <body className="min-h-screen bg-white text-slate-900">
-        <nav className="border-b px-6 py-4 flex gap-6 bg-slate-50">
-          <Link href="/" className="font-semibold text-slate-900">
-            Dashboard
-          </Link>
-          <Link href="/properties" className="text-slate-600 hover:text-slate-900">
-            Properties
-          </Link>
-          <Link href="/tenants" className="text-slate-600 hover:text-slate-900">
-            Tenants
-          </Link>
-          <Link href="/maintenance" className="text-slate-600 hover:text-slate-900">
-            Maintenance
-          </Link>
-        </nav>
-        <div className="p-8">{children}</div>
+      <body
+        style={{ backgroundColor: "var(--dk-bg-muted)", color: "var(--dk-fg-1)", minHeight: "100vh" }}
+      >
+        <NavBar />
+        <div
+          style={{
+            maxWidth: "var(--dk-container-max)",
+            margin: "0 auto",
+            padding: "var(--dk-space-8) var(--dk-container-pad)",
+          }}
+        >
+          {children}
+        </div>
       </body>
     </html>
   );

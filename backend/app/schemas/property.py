@@ -19,6 +19,7 @@ class PropertyBase(BaseModel):
     square_feet: Optional[int] = None
     status: PropertyStatus
     description: Optional[str] = None
+    ai_description: Optional[str] = None
 
 
 class PropertyCreate(PropertyBase):
@@ -38,6 +39,7 @@ class PropertyUpdate(BaseModel):
     square_feet: Optional[int] = None
     status: Optional[PropertyStatus] = None
     description: Optional[str] = None
+    ai_description: Optional[str] = None
 
 
 class PropertyRead(PropertyBase):
