@@ -2,7 +2,7 @@ import enum
 import uuid
 from typing import Optional
 
-from sqlalchemy import Enum as SQLEnum, Float, Integer, String, Text
+from sqlalchemy import Enum as SQLEnum, Float, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base
@@ -27,6 +27,9 @@ class Property(Base):
     __tablename__ = "properties"
 
     id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    org_id: Mapped[Optional[uuid.UUID]] = mapped_column(
+        ForeignKey("organizations.id", ondelete="CASCADE"), nullable=True, index=True
+    )
     title: Mapped[str] = mapped_column(String(255))
     address: Mapped[str] = mapped_column(String(255))
     city: Mapped[str] = mapped_column(String(100))

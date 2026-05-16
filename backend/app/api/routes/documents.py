@@ -90,6 +90,27 @@ async def download_document(doc_id: UUID, db: AsyncSession = Depends(get_db)):
     )
 
 
+@router.post("/{doc_id}/abstract-lease")
+async def abstract_lease_endpoint(doc_id: UUID, db: AsyncSession = Depends(get_db)):
+    import os
+    from app.services.lease_abstraction import abstract_lease, extract_pdf_text
+
+    repo = DocumentRepository(db)
+    doc = await repo.get_by_id(doc_id)
+    if not doc:
+        raise HTTPException(status_code=404, detail="Document not found")
+
+    file_path = _upload_dir() / doc.file_key
+    if not file_path.exists():
+        raise HTTPException(status_code=404, detail="File not found on disk")
+
+    with open(file_path, "rb") as f:
+        pdf_bytes = f.read()
+
+    pdf_text = extract_pdf_text(pdf_bytes)
+    return await abstract_lease(pdf_text)
+
+
 @router.delete("/{doc_id}", status_code=204)
 async def delete_document(doc_id: UUID, db: AsyncSession = Depends(get_db)):
     repo = DocumentRepository(db)

@@ -285,3 +285,103 @@ Strictly use the DKube design system from `colors_and_type.css` and `globals.css
 - **Type classes:** use `.dk-h3`, `.dk-h4`, `.dk-body`, `.dk-meta`, `.dk-eyebrow` — do not hardcode font sizes
 - **Spacing:** use `--dk-space-*` scale (4px base) — prefer Tailwind utility classes that map to it
 - **Buttons:** `--dk-radius-pill` (999px) for primary CTAs, `--dk-radius-md` for secondary actions
+
+---
+
+## v2.0 — YC B2B SaaS Layer
+
+> **Goal:** Transform from a single-user demo into a production-grade multi-tenant B2B SaaS ready for YC application.
+> Basis: YC application criteria + AppFolio/Buildium/Stessa/Belong/Doorstead competitive analysis + 2026 proptech trends.
+
+---
+
+### Tier 1 — Submit Blockers (Implemented in v2.0)
+
+#### ✅ S1. Authentication & Multi-Tenancy
+- `Organization` model: `id, name, plan_tier, stripe_customer_id, stripe_subscription_id, auto_dispatch_enabled`
+- `User` model: `id, org_id FK, email, password_hash, role (owner/manager/tech/accountant), first_name, last_name, is_active`
+- `POST /api/v1/auth/register` → create org + owner user → JWT
+- `POST /api/v1/auth/login` → email + password → JWT
+- `GET /api/v1/auth/me` → current user + org name
+- `org_id` added (nullable) to: Property, Tenant, MaintenanceRequest
+- JWT decoded via `app/core/security.py` (python-jose + bcrypt)
+- `get_current_user` dependency in `app/core/auth.py`
+- Frontend: `/login`, `/register` pages; `src/lib/auth.ts` (token storage, login, register, logout)
+- Frontend: `middleware.ts` route protection; NavBar shows org name + Sign Out
+- All `fetchJson()` calls inject `Authorization: Bearer <token>` header
+
+#### ✅ S2. Stripe Billing
+- `POST /api/v1/billing/subscribe` → create Stripe subscription
+- `GET /api/v1/billing/status` → plan tier, unit limit, price
+- `POST /api/v1/billing/portal` → Stripe Customer Portal session
+- `POST /api/v1/billing/webhook` → handle subscription cancellation
+- Plans: Free (3 units/$0), Starter (20/$49), Pro (100/$99)
+- Revenue model: 0.5% of rent collected through platform ACH (on roadmap)
+- Frontend: `/billing` page with plan cards, upgrade flow
+
+#### ✅ S3. Tenant Self-Service Portal
+- `POST /api/v1/portal/auth` → tenant login (email + 6-char portal code)
+- `GET /api/v1/portal/dashboard` → tenant's lease, payments, open requests, documents
+- `POST /api/v1/portal/maintenance` → submit maintenance request (data-isolated)
+- Separate JWT type (`portal`) — cannot access admin routes
+- Frontend: `/portal` page — mobile-first, no admin sidebar; login + dashboard + submit issue
+
+#### ✅ S4. Bulk CSV Import
+- `POST /api/v1/import/properties` → flexible header detection, upsert, error report
+- `POST /api/v1/import/tenants` → same pattern, duplicate email detection
+- Frontend: `/import` 3-step wizard (Upload → Confirm → Results with error rows)
+
+#### ✅ S5. AI Lease Abstraction
+- `POST /api/v1/documents/{id}/abstract-lease` → pypdf text extraction → Claude API
+- Extracts: tenant_name, landlord_name, rent_amount, deposit, dates, notice_days, pet_policy, late_fee, renewal_terms, key_clauses[]
+
+#### ✅ S6. AI Maintenance Auto-Dispatch
+- `POST /api/v1/ai/dispatch` → detect specialty from title/description → rank vendors (rating + open count) → assign
+- Keyword→specialty map: plumbing, electrical, hvac, roofing, landscaping, general
+
+---
+
+### Tier 2 — Demo Wow Factors (Implemented in v2.0)
+
+#### ✅ D1. Portfolio Health Score
+- `GET /api/v1/ai/health-score` → weighted score (0–100) + grade (A–F) + AI summary
+- Components: Occupancy (30%), Payment rate (25%), Maintenance backlog (20%), Lease renewal (15%), NOI trend (10%)
+- Claude API generates 2-3 sentence executive summary
+- Frontend: Dashboard shows score gauge circle, breakdown bars, top risks, AI summary
+
+#### ✅ D2. Natural Language Query Interface
+- `POST /api/v1/ai/query` → plain English → intent detection → real DB query → structured results
+- Supported: late payments, expiring leases, open maintenance, vacant properties, tenant/property lists
+- Fallback: Claude classifies ambiguous queries
+- Frontend: `/ai-query` page — search bar + sidebar (suggested + history) + results table + follow-up chips
+
+---
+
+### Tier 3 — Moat Builders (Roadmap)
+
+| Feature | Why It Wins | Status |
+|---------|-------------|--------|
+| Vendor Marketplace | Two-sided network; vendors pay for featured listing | Roadmap |
+| Predictive Rent Optimization | Data flywheel from cross-org pricing data | Roadmap |
+| Anonymous Portfolio Benchmarking | "Your NOI is 14% below similar properties in Austin" | Roadmap |
+| Owner Portal (Investor View) | PMs work for owners; Agora (YC W22) built their moat here | Roadmap |
+| Fair Housing AI Scanner | Legal compliance scan on listing descriptions | Roadmap |
+| Predictive Maintenance | Prevent $5K emergency repairs via failure probability | Roadmap |
+| Tenant Rental Reputation | Cross-property verified payment history — credit bureau play | Roadmap |
+| E-Signature Lease Workflow | End-to-end digital lease signing (DocuSign API) | Roadmap |
+
+---
+
+### New Tech Stack (v2.0 additions)
+
+**Backend:** `python-jose[cryptography]`, `passlib[bcrypt]`, `stripe`, `sendgrid`
+**Frontend:** `js-cookie` (optional), auth stored in localStorage + cookie for middleware
+
+---
+
+### YC One-Liner
+
+> "We're the AI-native property management platform — landlords collect rent, screen tenants, and manage maintenance in one place, while our AI predicts churn, optimizes rent pricing, and auto-dispatches repairs. $4B TAM, 18% YoY growth."
+
+**Revenue:** $49–$99/month per PM + 0.5% of rent flow through platform.
+**Moat:** Data flywheel — every lease, payment, and maintenance job makes our AI screening, pricing, and dispatch smarter across all customers.

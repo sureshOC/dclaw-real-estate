@@ -20,7 +20,16 @@ class Settings(BaseSettings):
 
     secret_key: str = "change-me-in-production"
     access_token_expire_minutes: int = 60
-    
+
+    stripe_secret_key: str = ""
+    stripe_webhook_secret: str = ""
+    stripe_price_starter: str = ""
+    stripe_price_pro: str = ""
+
+    sendgrid_api_key: str = ""
+    from_email: str = "noreply@dclaw.app"
+    frontend_url: str = "http://localhost:3000"
+
     class Config:
         env_file = ".env"
         case_sensitive = False

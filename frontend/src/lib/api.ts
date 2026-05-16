@@ -1,9 +1,15 @@
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "";
 
+function _authHeader(): Record<string, string> {
+  if (typeof window === "undefined") return {};
+  const token = localStorage.getItem("dclaw_token");
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
 async function fetchJson<T>(path: string, options?: RequestInit): Promise<T> {
   const url = `${API_BASE}${path}`;
   const response = await fetch(url, {
-    headers: { "Content-Type": "application/json", ...options?.headers },
+    headers: { "Content-Type": "application/json", ..._authHeader(), ...options?.headers },
     ...options,
   });
   if (!response.ok) {
@@ -388,4 +394,42 @@ export async function getRentRoll() {
 export async function getOccupancyReport(params?: { start?: string; end?: string }) {
   const query = params ? "?" + new URLSearchParams(params as Record<string, string>).toString() : "";
   return fetchJson<OccupancyReport>(`/api/v1/reports/occupancy${query}`);
+}
+
+// ── AI ───────────────────────────────────────────────────────────────────────
+export interface HealthScore {
+  score: number;
+  grade: string;
+  breakdown: { component: string; score: number; weight: number; insight: string }[];
+  ai_summary: string;
+  top_risks: string[];
+  total_properties: number;
+  occupied: number;
+  computed_at: string;
+}
+export async function getHealthScore() {
+  return fetchJson<HealthScore>("/api/v1/ai/health-score");
+}
+export async function runNLQuery(question: string) {
+  return fetchJson<{ query_interpreted: string; results: unknown[]; result_count: number; suggested_followups: string[] }>(
+    "/api/v1/ai/query",
+    { method: "POST", body: JSON.stringify({ question }) }
+  );
+}
+export async function abstractLease(docId: string) {
+  return fetchJson<Record<string, unknown>>(`/api/v1/documents/${docId}/abstract-lease`, { method: "POST" });
+}
+export async function autoDispatch(requestId: string) {
+  return fetchJson<{ dispatched: boolean; vendor_name?: string; rationale?: string }>(
+    "/api/v1/ai/dispatch",
+    { method: "POST", body: JSON.stringify({ request_id: requestId }) }
+  );
+}
+
+// ── Billing ──────────────────────────────────────────────────────────────────
+export async function getBillingStatus() {
+  return fetchJson<{ plan_tier: string; unit_limit: number; monthly_price: number }>("/api/v1/billing/status");
+}
+export async function subscribePlan(plan: string) {
+  return fetchJson<{ status: string; plan: string }>("/api/v1/billing/subscribe", { method: "POST", body: JSON.stringify({ plan }) });
 }

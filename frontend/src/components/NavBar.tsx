@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { logout, getUser } from "@/lib/auth";
 
 const NAV_LINKS = [
   { href: "/", label: "Dashboard" },
@@ -12,10 +13,18 @@ const NAV_LINKS = [
   { href: "/vendors", label: "Vendors" },
   { href: "/reports/rent-roll", label: "Rent Roll" },
   { href: "/reports/occupancy", label: "Occupancy" },
+  { href: "/ai-query", label: "AI Query" },
+  { href: "/import", label: "Import" },
+  { href: "/billing", label: "Billing" },
 ];
 
 export default function NavBar() {
   const pathname = usePathname();
+  const user = getUser();
+
+  if (pathname === "/login" || pathname === "/register" || pathname.startsWith("/portal")) {
+    return null;
+  }
 
   return (
     <nav
@@ -52,6 +61,20 @@ export default function NavBar() {
           DClaw
         </Link>
 
+        <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: "var(--dk-space-3)", flexShrink: 0 }}>
+          {user && (
+            <span className="dk-caption" style={{ color: "var(--dk-fg-2)" }}>
+              {user.org_name}
+            </span>
+          )}
+          <button onClick={logout} className="dk-meta" style={{ background: "none", border: "1px solid var(--dk-border)", borderRadius: "var(--dk-radius-pill)", padding: "var(--dk-space-1) var(--dk-space-3)", cursor: "pointer", color: "var(--dk-fg-2)" }}>
+            Sign Out
+          </button>
+        </div>
+      </div>
+
+      {/* Nav links row */}
+      <div style={{ maxWidth: "var(--dk-container-max)", margin: "0 auto", padding: "0 var(--dk-container-pad)", display: "flex", alignItems: "center", gap: "var(--dk-space-1)", overflowX: "auto", borderTop: "1px solid var(--dk-bg-muted)" }}>
         {NAV_LINKS.map(({ href, label }) => {
           const active =
             href === "/" ? pathname === "/" : pathname.startsWith(href);

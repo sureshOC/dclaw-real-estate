@@ -7,13 +7,18 @@ import app.models  # ensure all models are imported so create_all sees them
 from app.core.config import settings
 from app.core.database import init_db
 from app.api.routes import (
+    ai_tools,
+    auth,
+    billing,
     dashboard,
     documents,
     financials,
     health,
+    import_data,
     leases,
     maintenance,
     payments,
+    portal,
     properties,
     reports,
     tenants,
@@ -28,8 +33,8 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title=settings.app_name,
-    version="1.2.0",
+    title="DClaw Real Estate — YC Edition",
+    version="2.0.0",
     lifespan=lifespan,
 )
 
@@ -42,6 +47,7 @@ app.add_middleware(
 )
 
 app.include_router(health.router, prefix="/health", tags=["health"])
+app.include_router(auth.router, prefix="/api/v1", tags=["auth"])
 app.include_router(properties.router, prefix="/api/v1", tags=["properties"])
 app.include_router(tenants.router, prefix="/api/v1", tags=["tenants"])
 app.include_router(maintenance.router, prefix="/api/v1", tags=["maintenance"])
@@ -52,3 +58,7 @@ app.include_router(vendors.router, prefix="/api/v1", tags=["vendors"])
 app.include_router(documents.router, prefix="/api/v1", tags=["documents"])
 app.include_router(financials.router, prefix="/api/v1", tags=["financials"])
 app.include_router(reports.router, prefix="/api/v1", tags=["reports"])
+app.include_router(billing.router, prefix="/api/v1", tags=["billing"])
+app.include_router(portal.router, prefix="/api/v1", tags=["portal"])
+app.include_router(import_data.router, prefix="/api/v1", tags=["import"])
+app.include_router(ai_tools.router, prefix="/api/v1", tags=["ai"])
