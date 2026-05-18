@@ -43,7 +43,7 @@ export default function RegisterPage() {
     border: "1px solid var(--dk-border)",
     borderRadius: "var(--dk-radius-md)",
     fontSize: "var(--dk-text-sm)",
-    fontFamily: "var(--dk-font-body)",
+    fontFamily: "var(--dk-font-sans)",
     outline: "none",
     boxSizing: "border-box",
   };

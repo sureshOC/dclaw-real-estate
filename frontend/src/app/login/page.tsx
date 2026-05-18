@@ -98,7 +98,7 @@ export default function LoginPage() {
                 border: "1px solid var(--dk-border)",
                 borderRadius: "var(--dk-radius-md)",
                 fontSize: "var(--dk-text-sm)",
-                fontFamily: "var(--dk-font-body)",
+                fontFamily: "var(--dk-font-sans)",
                 outline: "none",
                 boxSizing: "border-box",
               }}
@@ -121,7 +121,7 @@ export default function LoginPage() {
                 border: "1px solid var(--dk-border)",
                 borderRadius: "var(--dk-radius-md)",
                 fontSize: "var(--dk-text-sm)",
-                fontFamily: "var(--dk-font-body)",
+                fontFamily: "var(--dk-font-sans)",
                 outline: "none",
                 boxSizing: "border-box",
               }}
