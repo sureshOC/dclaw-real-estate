@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import app.models  # ensure all models are imported so create_all sees them
 from app.core.config import settings
 from app.core.database import init_db
+from app.core.seed import seed_demo_data
 from app.api.routes import (
     ai_tools,
     auth,
@@ -29,6 +30,7 @@ from app.api.routes import (
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await init_db()
+    await seed_demo_data()
     yield
 
 

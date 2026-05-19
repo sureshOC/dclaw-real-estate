@@ -7,7 +7,8 @@ class Settings(BaseSettings):
     app_env: str = "dev"
     debug: bool = True
 
-    database_url: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/dclaw_crm"
+    # SQLite fallback so the app runs on Vercel serverless without a DB env var
+    database_url: str = "sqlite+aiosqlite:////tmp/dclaw.db"
 
     anthropic_api_key: str = ""
     anthropic_model: str = "claude-sonnet-4-6"

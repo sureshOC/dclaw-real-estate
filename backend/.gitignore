@@ -41,3 +41,4 @@ htmlcov/
 
 # Alembic — track migrations
 !alembic/versions/*.py
+.vercel
