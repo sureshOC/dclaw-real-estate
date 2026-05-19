@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { logout, getUser } from "@/lib/auth";
+import { useEffect, useState } from "react";
+import { logout, getUser, type AuthUser } from "@/lib/auth";
 
 const NAV_LINKS = [
   { href: "/", label: "Dashboard" },
@@ -20,7 +21,11 @@ const NAV_LINKS = [
 
 export default function NavBar() {
   const pathname = usePathname();
-  const user = getUser();
+  const [user, setUser] = useState<AuthUser | null>(null);
+
+  useEffect(() => {
+    setUser(getUser());
+  }, []);
 
   if (pathname === "/login" || pathname === "/register" || pathname.startsWith("/portal")) {
     return null;
