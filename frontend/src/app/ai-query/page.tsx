@@ -39,7 +39,10 @@ export default function AIQueryPage() {
         headers: { "Content-Type": "application/json", ...authHeaders() },
         body: JSON.stringify({ question: q }),
       });
-      if (!res.ok) throw new Error(await res.text());
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({ detail: "Query failed" }));
+        throw new Error(body.detail || "Query failed");
+      }
       const data = await res.json();
       setResult(data);
       setHistory((h) => [q, ...h.filter((x) => x !== q)].slice(0, 10));
