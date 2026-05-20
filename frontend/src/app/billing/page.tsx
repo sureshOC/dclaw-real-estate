@@ -27,7 +27,10 @@ export default function BillingPage() {
 
   useEffect(() => {
     fetch(`${API_BASE}/api/v1/billing/status`, { headers: authHeaders() })
-      .then((r) => r.json())
+      .then(async (r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json();
+      })
       .then(setStatus)
       .catch(() => setError("Failed to load billing status"))
       .finally(() => setLoading(false));
